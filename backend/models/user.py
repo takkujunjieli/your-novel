@@ -2,13 +2,14 @@ import uuid
 from datetime import date, datetime
 from typing import Optional, Any
 from sqlmodel import Field, SQLModel
+from sqlalchemy import Column, JSON
 from pydantic import ConfigDict
 
 class UserBase(SQLModel):
     device_id: str = Field(unique=True, index=True)
-    date_of_birth: date
-    # In SQLite JSONB is not supported, so we will adapt this later for Postgres
-    preferences: Optional[dict[str, Any]] = None
+    is_adult: bool = Field(default=False)
+    # Explicitly mapping Python dictionaries to SQLAlchemy JSON columns
+    preferences: Optional[dict[str, Any]] = Field(default=None, sa_column=Column(JSON))
 
 # This represents the database table
 class User(UserBase, table=True):
