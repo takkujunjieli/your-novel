@@ -13,10 +13,11 @@
 
 ### 1.2 Platform Scope
 
-- **Mobile Applications** (Primary): iOS and Android native apps
-- **Web Application** (Secondary): Responsive web for content discovery and account management
+- **Web Application** (Primary): Progressive Web App (PWA) with installable capabilities
+- **Android Application** (Secondary): Native Android app for enhanced experience
+- **iOS Support**: Via PWA (Safari/Chrome) - no App Store submission needed
 - **Backend Services**: Monolithic API with modular domain services
-- **AI Infrastructure**: Self-hosted LLM with managed fallback
+- **AI Infrastructure**: OpenAI API (Phase 1) → Self-hosted LLM (Phase 2)
 
 ---
 
@@ -25,14 +26,14 @@
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                     Client Layer                            │
-├───────────────┬─────────────────┬───────────────────────────┤
-│               │                 │                           │
-│  iOS App      │  Android App    │   Web App (React)         │
-│  (Swift/UI)   │  (Kotlin)       │   (Content Discovery)     │
-│               │                 │                           │
-└───────┬───────┴────────┬────────┴───────────┬───────────────┘
-        │                │                    │
-        └────────────────┼────────────────────┘
+├─────────────────────────┬───────────────────────────────────┤
+│                         │                                   │
+│  Web App + PWA           │  Android Native (Future)         │
+│  (HTML/CSS/JavaScript)   │  (Kotlin + Jetpack Compose)      │
+│                         │                                   │
+└───────────┬─────────────┴───────────────┬───────────────────┘
+            │                             │
+            └────────────┬────────────────┘
                          │
                     ┌────▼────┐
                     │   CDN   │
@@ -42,7 +43,7 @@
         │                                  │
 ┌───────▼────────┐              ┌─────────▼─────────┐
 │  REST API      │              │  SSE Stream       │
-│  (Express)     │              │  (AI Generation)  │
+│  (FastAPI)     │              │  (AI Generation)  │
 └───────┬────────┘              └─────────┬─────────┘
         │                                  │
         └────────────┬─────────────────────┘
@@ -72,25 +73,29 @@
 
 ## 3. Client Architecture
 
-### 3.1 Mobile Applications (Primary)
+### 3.1 Web Application (Primary)
 
 #### Technology Stack
 
-**iOS**:
-- **Language**: Swift 5.9+
-- **UI Framework**: SwiftUI (iOS 15+)
-- **Networking**: URLSession + async/await
-- **Data Persistence**: Core Data + CloudKit sync
-- **Image Loading**: Kingfisher (async image loading with caching)
+**Web + PWA**:
+- **Core**: HTML5, CSS3, Vanilla JavaScript (no frameworks for MVP)
+- **Progressive Enhancement**: Service workers for offline support
+- **Installation**: PWA manifest for "Add to Home Screen" capability
+- **iOS Support**: Safari PWA (no App Store needed)
+- **Android Support**: Chrome PWA (installable as native-like app)
+- **Storage**: IndexedDB for offline reading cache
+- **Networking**: Fetch API + SSE (Server-Sent Events) for streaming
+- **Image Loading**: Lazy loading + Intersection Observer API
 
-**Android**:
-- **Language**: Kotlin 1.9+
-- **UI Framework**: Jetpack Compose (Android 7+)
-- **Networking**: Retrofit + OkHttp
-- **Data Persistence**: Room Database + WorkManager
-- **Image Loading**: Coil (Compose Image Loading)
+#### Why Web + PWA First?
 
-#### Core Mobile Features
+1. **Avoids iOS App Store**: No $99/year fee, no review delays, no adult content policy risks
+2. **Faster Development**: Single codebase for all platforms
+3. **Instant Updates**: No app store approval needed
+4. **SEO Benefits**: Discoverable through web search
+5. **Low Barrier**: Users can access immediately without downloading from app store
+
+#### Core Web Features
 
 **1. Content Reading Interface**
 
@@ -192,42 +197,42 @@ No Progress Screens:
 
 ### 4.1 API Layer
 
-**Base Technology**: Node.js 20 + Express 4.x + TypeScript 5.x
+**Base Technology**: Python 3.11+ + FastAPI 0.104+
 
 #### REST Endpoints
 
-```typescript
-// Content Discovery
-GET    /api/v1/content/trending          // Trending content
-GET    /api/v1/content/recommended       // Personalized recommendations
-GET    /api/v1/content/:id               // Content details
-GET    /api/v1/content/:id/chapters      // Chapter list
+```python
+# Content Discovery
+GET    /api/v1/content/trending          # Trending content
+GET    /api/v1/content/recommended       # Personalized recommendations
+GET    /api/v1/content/{id}              # Content details
+GET    /api/v1/content/{id}/chapters     # Chapter list
 
-// Reading
-GET    /api/v1/chapters/:id              // Chapter content
-POST   /api/v1/chapters/:id/progress     // Save reading progress
+# Reading
+GET    /api/v1/chapters/{id}             # Chapter content
+POST   /api/v1/chapters/{id}/progress    # Save reading progress
 
-// Generation (Authenticated)
-POST   /api/v1/generate/chapter          // Request chapter generation
-GET    /api/v1/generate/status/:id       // Check generation status
+# Generation (Authenticated)
+POST   /api/v1/generate/chapter          # Request chapter generation
+GET    /api/v1/generate/status/{id}      # Check generation status
 
-// User Management
-POST   /api/v1/auth/age-verify           // Age verification
-POST   /api/v1/auth/register             // Device-based registration
-GET    /api/v1/me/profile                // User profile
+# User Management
+POST   /api/v1/auth/age-verify           # Age verification
+POST   /api/v1/auth/register             # Device-based registration
+GET    /api/v1/me/profile                # User profile
 
-// Library
-POST   /api/v1/library/bookmark          // Add to library
-DELETE /api/v1/library/bookmark/:id      // Remove from library
-GET    /api/v1/library                   // User's library
+# Library
+POST   /api/v1/library/bookmark          # Add to library
+DELETE /api/v1/library/bookmark/{id}     # Remove from library
+GET    /api/v1/library                   # User's library
 ```
 
 #### SSE Streaming Endpoint
 
-```typescript
-GET /api/v1/generate/stream/:generationId
+```python
+GET /api/v1/generate/stream/{generation_id}
 
-// Response format (Server-Sent Events)
+# Response format (Server-Sent Events)
 data: {"type": "token", "content": "这是一段文字"}
 data: {"type": "token", "content": "正在生成..."}
 data: {"type": "done", "chapterId": "uuid-123"}
@@ -240,170 +245,102 @@ data: {"type": "error", "message": "..."}
 
 **Responsibilities**: Content metadata, chapter management, reading progress
 
-```typescript
-class ContentService {
-  async getTrending(limit: number): Promise<ContentSummary[]>
-  async getRecommended(userId: string): Promise<ContentSummary[]>
-  async getContentDetails(contentId: string): Promise<Content>
-  async getChapterList(contentId: string): Promise<Chapter[]>
-  async saveReadingProgress(userId: string, chapterId: string, position: number): Promise<void>
-  async getReadingProgress(userId: string): Promise<ReadingProgress>
-}
+```python
+class ContentService:
+    async def get_trending(self, limit: int) -> List[ContentSummary]:
+        ...
+
+    async def get_recommended(self, user_id: str) -> List[ContentSummary]:
+        ...
+
+    async def get_content_details(self, content_id: str) -> Content:
+        ...
+
+    async def get_chapter_list(self, content_id: str) -> List[Chapter]:
+        ...
+
+    async def save_reading_progress(
+        self, user_id: str, chapter_id: str, position: int
+    ) -> None:
+        ...
+
+    async def get_reading_progress(self, user_id: str) -> ReadingProgress:
+        ...
 ```
 
 #### AI Generation Service
 
 **Responsibilities**: Prompt assembly, LLM orchestration, safety filtering, output storage
 
-```typescript
-class AIGenerationService {
-  async generateChapter(request: GenerationRequest): Promise<GenerationJob>
-  async getGenerationStatus(jobId: string): Promise<GenerationStatus>
-  async streamGeneration(jobId: string): Promise<ReadableStream>
+```python
+class AIGenerationService:
+    async def generate_chapter(
+        self, request: GenerationRequest
+    ) -> GenerationJob:
+        ...
 
-  // Internal methods
-  private async assemblePrompt(request: GenerationRequest): Promise<SystemAndScenarioPrompt>
-  private async invokeLLM(prompt: string): AsyncGenerator<string>
-  private async validateSafety(content: string): Promise<SafetyResult>
-  private async saveChapter(content: string, metadata: ChapterMetadata): Promise<Chapter>
-}
+    async def get_generation_status(self, job_id: str) -> GenerationStatus:
+        ...
+
+    async def stream_generation(self, job_id: str) -> AsyncGenerator[str, None]:
+        ...
+
+    # Internal methods
+    async def _assemble_prompt(
+        self, request: GenerationRequest
+    ) -> SystemAndScenarioPrompt:
+        ...
+
+    async def _invoke_llm(
+        self, prompt: str
+    ) -> AsyncGenerator[str, None]:
+        ...
+
+    async def _validate_safety(self, content: str) -> SafetyResult:
+        ...
+
+    async def _save_chapter(
+        self, content: str, metadata: ChapterMetadata
+    ) -> Chapter:
+        ...
 ```
 
 #### User Service
 
 **Responsibilities**: Authentication, profile management, preferences, library
 
-```typescript
-class UserService {
-  async verifyAge(dob: Date, deviceId: string): Promise<AgeVerificationResult>
-  async registerDevice(deviceId: string): Promise<UserSession>
-  async getProfile(userId: string): Promise<UserProfile>
-  async updatePreferences(userId: string, prefs: UserPreferences): Promise<void>
-  async getLibrary(userId: string): Promise<LibraryItem[]>
-  async addBookmark(userId: string, contentId: string): Promise<void>
-}
+```python
+class UserService:
+    async def verify_age(
+        self, dob: date, device_id: str
+    ) -> AgeVerificationResult:
+        ...
+
+    async def register_device(self, device_id: str) -> UserSession:
+        ...
+
+    async def get_profile(self, user_id: str) -> UserProfile:
+        ...
+
+    async def update_preferences(
+        self, user_id: str, prefs: UserPreferences
+    ) -> None:
+        ...
+
+    async def get_library(self, user_id: str) -> List[LibraryItem]:
+        ...
+
+    async def add_bookmark(self, user_id: str, content_id: str) -> None:
+        ...
 ```
 
 ### 4.3 Infrastructure Layer
 
-#### PostgreSQL (Primary Database)
+**Refer to [Data Model & Schema Design](../data/Data_Model.md)** for detailed database schemas (PostgreSQL), Redis caching structures, and Object Storage (R2) directory layouts.
 
-```sql
--- Content Metadata
-CREATE TABLE contents (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  tags TEXT[],
-  cover_image_url VARCHAR(500),
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
-
--- Chapters
-CREATE TABLE chapters (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  content_id UUID REFERENCES contents(id),
-  chapter_number INTEGER NOT NULL,
-  title VARCHAR(255),
-  content TEXT NOT NULL,
-  audio_url VARCHAR(500),
-  illustration_urls TEXT[],
-  word_count INTEGER,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
--- Reading Progress
-CREATE TABLE reading_progress (
-  user_id UUID REFERENCES users(id),
-  chapter_id UUID REFERENCES chapters(id),
-  position_percent INTEGER DEFAULT 0,
-  last_read_at TIMESTAMP DEFAULT NOW(),
-  PRIMARY KEY (user_id, chapter_id)
-);
-
--- Generation Jobs
-CREATE TABLE generation_jobs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id),
-  content_id UUID REFERENCES contents(id),
-  status VARCHAR(50) DEFAULT 'pending', -- pending, generating, completed, failed
-  model_name VARCHAR(100),
-  model_version VARCHAR(50),
-  created_at TIMESTAMP DEFAULT NOW(),
-  completed_at TIMESTAMP
-);
-
--- Users (Device-based auth)
-CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  device_id VARCHAR(255) UNIQUE NOT NULL,
-  date_of_birth DATE NOT NULL,
-  age_verified_at TIMESTAMP DEFAULT NOW(),
-  preferences JSONB,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
--- Library (Bookmarks)
-CREATE TABLE library_items (
-  user_id UUID REFERENCES users(id),
-  content_id UUID REFERENCES contents(id),
-  added_at TIMESTAMP DEFAULT NOW(),
-  PRIMARY KEY (user_id, content_id)
-);
-
--- Vector Search (pgvector)
-CREATE EXTENSION IF NOT EXISTS vector;
-
--- Content embeddings for recommendations
-CREATE TABLE content_embeddings (
-  content_id UUID REFERENCES contents(id) PRIMARY KEY,
-  embedding vector(1536) -- OpenAI embedding dimension
-);
-
--- User preference embeddings for personalization
-CREATE TABLE user_preferences_embeddings (
-  user_id UUID REFERENCES users(id) PRIMARY KEY,
-  embedding vector(1536)
-);
-```
-
-#### Redis (Caching & Sessions)
-
-**Use Cases**:
-- Session storage (device-based auth tokens)
-- Rate limiting (generation requests per user)
-- Caching trending content (5-minute TTL)
-- Caching user library (30-minute TTL)
-
-```typescript
-// Redis usage patterns
-await redis.set(`session:${deviceId}`, sessionToken, 'EX', 86400 * 30) // 30 days
-await redis.incr(`rate:generate:${userId}`)
-await redis.set(`cache:trending`, JSON.stringify(content), 'EX', 300)
-```
-
-#### Object Storage (R2 + CDN)
-
-**Storage Structure**:
-```
-/
-├── covers/
-│   ├── {contentId}/cover.jpg
-│   └── {contentId}/cover.webp
-├── illustrations/
-│   └── {chapterId}/
-│       ├── illustration-1.jpg
-│       └── illustration-2.jpg
-└── audio/
-    └── {chapterId}/
-        └── speech.mp3
-```
-
-**CDN Configuration**:
-- Global edge caching (1-hour TTL)
-- Image optimization (WebP, AVIF formats)
-- Adaptive bitrate for audio
+- **PostgreSQL**: Primary transactional database for users, content metadata, reading progress, and vector search (pgvector).
+- **Redis**: Caching, session management, and rate limiting.
+- **Object Storage (R2 + CDN)**: Media files (images, audio) with edge caching.
 
 ---
 
@@ -412,7 +349,7 @@ await redis.set(`cache:trending`, JSON.stringify(content), 'EX', 300)
 ### 5.1 Content Reading Flow
 
 ```
-User                          Mobile App                    API                  Database
+User                          Web App                       API                  Database
 │                              │                              │                     │
 │  Tap "Continue Reading"      │                              │                     │
 ├─────────────────────────────>│                              │                     │
@@ -453,7 +390,7 @@ User                          Mobile App                    API                 
 ### 5.2 AI Generation Flow
 
 ```
-User                      Mobile App                API                     LLM
+User                      Web App                  API                     LLM
 │                            │                        │                        │
 │  Tap "Generate Chapter"   │                        │                        │
 ├───────────────────────────>│                        │                        │
@@ -497,12 +434,12 @@ User                      Mobile App                API                     LLM
 ### 5.3 Content Discovery Flow
 
 ```
-User                      Mobile App                API                    Database
+User                      Web App                  API                    Database
 │                            │                        │                       │
 │  Launch app                │                        │                       │
 ├───────────────────────────>│                        │                       │
 │                            │  Check local cache      │                       │
-│                            │  (Core Data/Room)       │                       │
+│                            │  (IndexedDB/PWA)        │                       │
 │                            │                        │                       │
 │  Display home screen       │                        │                       │
 │  (cached + placeholder)    │                        │                       │
@@ -552,91 +489,17 @@ User                      Mobile App                API                    Datab
 
 ### 6.2 Prompt Architecture
 
-**System Prompt** (Persistent):
-```markdown
-# Role
-Expert fiction writer specializing in immersive narratives
-
-# Core Principles
-1. Consent: All characters are consenting adults (18+)
-2. Quality: Plot development, character growth, emotional resonance
-3. Safety: Follow platform guidelines
-
-# Output Format
-- Length: 1000-2000 words
-- Structure: Dialogue, narration, introspection
-- Language: Chinese (default) or English
-```
-
-**Scenario Prompt** (Per-generation):
-```markdown
-# Context
-Genre: [Romance | Fantasy | Historical]
-Setting: [Time, location, mood]
-Characters: [Name, age, role, traits]
-
-# Plot
-1. Opening scene
-2. Rising action
-3. Climax
-4. Resolution
-
-# Style
-- Descriptive: Sensory-rich, metaphorical
-- Dialogue: Natural, character-specific
-- Tone: [Hopeful | Melancholic | Passionate]
-
-# Chapter Goal
-[Single-sentence objective]
-```
+**Refer to [AI Generation Design](./AI_Generation_Design.md) and [Prompt Quick Reference](./Prompt_Quick_Reference.md)** for detailed prompt architectures, templates, and LLM-specific routing logic.
 
 ### 6.3 Safety & Quality Assurance
 
-**Pre-Generation Checks**:
-- User age verified (18+)
-- Account in good standing (not flagged)
-- Rate limit not exceeded (3 generations/day for free users)
-
-**Post-Generation Validation**:
-```typescript
-interface SafetyCheck {
-  hasMinors: boolean           // Block if true
-  nonConsensual: boolean       // Block if true
-  excessiveViolence: boolean   // Block if true
-  realPersonReferences: boolean // Block if true
-  qualityScore: number         // Must be > 0.6
-}
-
-async function validateGeneratedContent(content: string): Promise<SafetyCheck> {
-  // 1. Keyword-based filtering
-  const keywordCheck = await checkBlockedKeywords(content)
-
-  // 2. LLM-based safety classification
-  const llmCheck = await classifySafety(content)
-
-  // 3. Quality scoring (coherence, engagement)
-  const qualityScore = await assessQuality(content)
-
-  return {
-    hasMinors: llmCheck.hasMinors,
-    nonConsensual: llmCheck.nonConsensual,
-    excessiveViolence: keywordCheck.violenceCount > 3,
-    realPersonReferences: keywordCheck.hasRealNames,
-    qualityScore: qualityScore.overall
-  }
-}
-```
-
-**Fallback Behavior**:
-- If safety check fails: Silently retry with different prompt
-- If 3 retries fail: Notify user "Unable to generate. Try again later."
-- If quality score < 0.6: Offer user option to accept or regenerate
+**Refer to [Trust & Safety Design](../safety/Trust_and_Safety.md)** for detailed pre-generation gates, post-generation LLM safety filtering, fallback behavior, and compliance logging.
 
 ---
 
 ## 7. Offline & Sync Strategy
 
-### 7.1 Mobile Offline Support
+### 7.1 PWA Offline Support
 
 **What Works Offline**:
 - Read previously downloaded chapters
@@ -650,34 +513,45 @@ async function validateGeneratedContent(content: string): Promise<SafetyCheck> {
 - Syncing progress across devices
 
 **Sync Strategy**:
-```swift
-// iOS (Core Data + CloudKit)
+```javascript
+// PWA (IndexedDB + Service Worker)
 class SyncManager {
-  func syncReadingProgress() async {
-    let localProgress = fetchLocalProgress()
-    let remoteProgress = await API.getProgress()
+  async syncReadingProgress() {
+    const localProgress = await this.getLocalProgress()
+    const remoteProgress = await fetch('/api/v1/me/progress').then(r => r.json())
 
-    let merged = mergeProgress(local: localProgress, remote: remoteProgress)
-    await API.uploadProgress(merged)
-    saveLocal(merged)
+    const merged = this.mergeProgress(localProgress, remoteProgress)
+    await fetch('/api/v1/me/progress', {
+      method: 'POST',
+      body: JSON.stringify(merged)
+    })
+    await this.saveLocal(merged)
+  }
+
+  async getLocalProgress() {
+    // IndexedDB access
+    const db = await this.openDB()
+    return db.getAll('progress')
+  }
+
+  async saveLocal(progress) {
+    const db = await this.openDB()
+    await db.put('progress', progress)
+  }
+
+  openDB() {
+    return indexedDB.open('YourNovelDB', 1)
   }
 }
-```
 
-```kotlin
-// Android (Room + WorkManager)
-class SyncWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
-  override suspend fun doWork(): Result {
-    val localProgress = database.progressDao().getAll()
-    val remoteProgress = api.getProgress()
-
-    val merged = mergeProgress(localProgress, remoteProgress)
-    api.uploadProgress(merged)
-    database.progressDao().insertAll(merged)
-
-    return Result.success()
-  }
-}
+// Service worker for offline caching
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request)
+    })
+  )
+})
 ```
 
 **Sync Triggers**:
@@ -707,7 +581,7 @@ class SyncWorker(context: Context, workerParams: WorkerParameters) : CoroutineWo
 
 ```
 ┌─────────────────────────────────────┐
-│  Client-Side (Core Data/Room)       │
+│  Client-Side (IndexedDB/PWA)        │
 │  - Downloaded chapters              │
 │  - User library                     │
 │  - Reading progress                 │
@@ -767,9 +641,9 @@ class SyncWorker(context: Context, workerParams: WorkerParameters) : CoroutineWo
 ### 9.1 Age Verification
 
 **Implementation**:
-```typescript
-// Client-side
-async function verifyAge(dob: Date): Promise<boolean> {
+```javascript
+// Client-side (JavaScript)
+async function verifyAge(dob) {
   const age = calculateAge(dob)
   if (age < 18) {
     showBlockScreen("You must be 18+ to use this app")
@@ -777,31 +651,40 @@ async function verifyAge(dob: Date): Promise<boolean> {
   }
 
   // Send to server
-  const result = await API.post('/auth/age-verify', { dob })
+  const result = await fetch('/api/v1/auth/age-verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ dob })
+  }).then(r => r.json())
 
   if (result.success) {
-    storeVerificationToken(result.token)
+    localStorage.setItem('verification_token', result.token)
     enableAppAccess()
   }
 
   return result.success
 }
+```
 
-// Server-side
-async function handleAgeVerification(dob: Date, deviceId: string) {
-  const age = calculateAge(dob)
-  if (age < 18) {
-    throw new Error('Age verification failed')
-  }
+```python
+# Server-side (Python/FastAPI)
+from datetime import date
 
-  // Create user account (device-based)
-  const user = await createOrUpdateUser(deviceId, dob)
+async def handle_age_verification(dob: date, device_id: str):
+    age = calculate_age(dob)
+    if age < 18:
+        raise HTTPException(
+            status_code=403,
+            detail="Age verification failed"
+        )
 
-  // Generate session token
-  const token = generateSessionToken(user.id)
+    # Create user account (device-based)
+    user = await create_or_update_user(device_id, dob)
 
-  return { success: true, token }
-}
+    # Generate session token
+    token = generate_session_token(user.id)
+
+    return {"success": True, "token": token}
 ```
 
 ### 9.2 Content Moderation
@@ -885,10 +768,9 @@ async function handleAgeVerification(dob: Date, deviceId: string) {
 
 | Layer | Technology | Rationale |
 |-------|-----------|-----------|
-| **iOS** | Swift + SwiftUI | Native performance, modern UI, Apple ecosystem integration |
-| **Android** | Kotlin + Jetpack Compose | Native performance, modern UI, Material Design 3 |
-| **Web** | Next.js 14 + shadcn/ui | Fast development, SEO-friendly, modern DX |
-| **Backend** | Node.js + Express + TypeScript | Solo developer efficiency, rich ecosystem |
+| **Web/PWA** | HTML5 + CSS3 + Vanilla JavaScript | Single codebase, no App Store needed, works on iOS/Android |
+| **Android (Future)** | Kotlin + Jetpack Compose | User's familiar language, native performance for Phase 2 |
+| **Backend** | Python 3.11+ + FastAPI 0.104+ | User knows Python, async support, automatic API docs |
 | **Database** | PostgreSQL 15 + pgvector | Reliable, vector search, ACID compliance |
 | **Cache** | Redis 7 | Fast in-memory storage, rate limiting |
 | **Storage** | Cloudflare R2 + CDN | Free egress, global distribution, cost-effective |
@@ -920,8 +802,8 @@ async function handleAgeVerification(dob: Date, deviceId: string) {
 │  │  └──────┬─────┘  └──────────────┘        │ │
 │  │         │                                 │ │
 │  │  ┌──────▼─────┐  ┌──────────────┐        │ │
-│  │  │ Node.js    │  │ Redis        │        │ │
-│  │  │ API        │  │ (Cache)      │        │ │
+│  │  │ FastAPI    │  │ Redis        │        │ │
+│  │  │ (Python)   │  │ (Cache)      │        │ │
 │  │  └────────────┘  └──────────────┘        │ │
 │  │                                           │ │
 │  └───────────────────────────────────────────┘ │

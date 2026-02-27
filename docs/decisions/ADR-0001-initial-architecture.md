@@ -29,15 +29,15 @@ We will implement a **modular monolithic architecture** with a **hybrid API laye
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                     Frontend (Next.js)                   │
-│                  - Static + SSR + CSR                    │
+│                  Frontend (Web + PWA)                    │
+│                  - HTML/CSS/JavaScript                   │
 └─────────────────────────────────────────────────────────┘
                             │
                     ┌───────┴───────┐
                     ▼               ▼
             ┌──────────────┐  ┌─────────────────┐
             │   REST API   │  │     SSE (Stream) │
-            │   (Express)  │  │  (Real-time)     │
+            │  (FastAPI)   │  │  (Real-time)     │
             └──────┬───────┘  └────────┬────────┘
                    │                   │
                    └────────┬──────────┘
@@ -83,10 +83,12 @@ We will implement a **modular monolithic architecture** with a **hybrid API laye
 - **Object Storage (S3/R2)**: Media files (images, audio) with CDN
 - **Redis**: Session management, rate limiting, caching
 
-#### 4. Frontend: Next.js with App Router
-- **SSR**: SEO-friendly content discovery pages
-- **CSR**: Interactive reading/generation interface
-- **ISR**: Semi-static pages for popular content
+#### 4. Frontend: Web Application + PWA
+- **Single Codebase**: Works on iOS (via Safari PWA), Android (via Chrome PWA), and desktop
+- **PWA Features**: "Add to Home Screen", offline support, push notifications
+- **No App Store**: Avoids iOS App Store fees, review delays, adult content policy risks
+- **SEO-Friendly**: Discoverable through web search, shareable links
+- **Technology**: HTML5, CSS3, Vanilla JavaScript (no frameworks for MVP speed)
 
 ---
 
@@ -111,10 +113,12 @@ This decision is driven by the PRD requirements and future scalability needs:
 - **Object Storage**: Cost-effective media storage with built-in CDN (R2 is free for egress)
 - **Redis**: Essential for rate limiting (API cost control) and session caching
 
-### 4. Next.js for Full-Stack Efficiency
-- **Single Codebase**: Solo developer can handle both frontend and backend logic
-- **Built-in Optimization**: Image optimization, font optimization, automatic code splitting
-- **Flexible Rendering**: SSR for discovery (SEO), CSR for app-like experience, ISR for content pages
+### 4. Web + PWA for Cross-Platform Efficiency
+- **Single Codebase**: Solo developer can deploy to web, iOS (PWA), and Android (PWA) simultaneously
+- **No App Store Barriers**: Avoids iOS App Store fees ($99/year), review delays (1-3 weeks), and adult content policy risks
+- **Instant Updates**: No app review needed - deploy immediately when features are ready
+- **SEO & Shareability**: Content discoverable through web search, shareable via links
+- **Future Native Path**: Can add Android native app (Kotlin, user's familiar language) in Phase 2 if needed
 
 ### 5. Cost Optimization (< $100/month target)
 - **Modular Monolith**: Reduced infrastructure overhead vs microservices
