@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from api.health import router as health_router
 
 app = FastAPI(
     title="Your Novel API",
@@ -16,10 +17,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to Your Novel API"}
-
-@app.get("/health")
-def health_check():
-    return {"status": "ok"}
+app.include_router(health_router)
