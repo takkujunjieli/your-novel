@@ -17,7 +17,7 @@ class Content(ContentBase, table=True):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     # Relationship to Chapters
-    chapters: List["Chapter"] = Relationship(back_populates="content")
+    chapters: List["Chapter"] = Relationship(back_populates="novel")
 
 class ChapterBase(SQLModel):
     chapter_number: int
@@ -34,7 +34,7 @@ class Chapter(ChapterBase, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     # Relationship back to Content
-    content: Content = Relationship(back_populates="chapters")
+    novel: Content = Relationship(back_populates="chapters")
 
 # Public schemas for API responses
 class ContentPublic(ContentBase):

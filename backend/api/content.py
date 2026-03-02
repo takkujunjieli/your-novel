@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import APIRouter, HTTPException, Path
-from sqlalchemy import select
+from sqlmodel import select
 from core.db import SessionDep
 from models.content import Content, ContentPublic, Chapter, ChapterPublic
 
