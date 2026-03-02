@@ -2,22 +2,21 @@
 
 ## 1. System Overview
 
-**Your Novel** is a mobile-first AI-native content platform focused on immersive reading experiences with seamless AI content generation capabilities.
+**Your Novel** is a web-first AI-native content platform focused on immersive reading experiences with seamless AI content generation capabilities.
 
 ### 1.1 Core Product Philosophy
 
 - **Reading-Centric**: Primary value proposition is content discovery and consumption
 - **AI as Infrastructure**: Content generation operates seamlessly in the background
-- **Mobile-First Experience**: Optimized for mobile usage patterns and touch interactions
+- **Web-First Experience**: Optimized for web usage patterns and mouse interactions
 - **Accessibility First**: Frictionless onboarding with age-gated content discovery
 
 ### 1.2 Platform Scope
 
 - **Web Application** (Primary): Progressive Web App (PWA) with installable capabilities
 - **Android Application** (Secondary): Native Android app for enhanced experience
-- **iOS Support**: Via PWA (Safari/Chrome) - no App Store submission needed
 - **Backend Services**: Monolithic API with modular domain services
-- **AI Infrastructure**: OpenAI API (Phase 1) → Self-hosted LLM (Phase 2)
+- **AI Infrastructure**: OpenAI API (Phase 1) → Self-hosted LLM (Phase 2) -> Fine-tuned LLM (Phase 3)
 
 ---
 

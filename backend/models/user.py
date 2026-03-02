@@ -5,6 +5,7 @@ from sqlmodel import Field, SQLModel
 from sqlalchemy import Column, JSON
 from pydantic import ConfigDict
 
+# This is the base model for the User table
 class UserBase(SQLModel):
     device_id: str = Field(unique=True, index=True)
     is_adult: bool = Field(default=False)

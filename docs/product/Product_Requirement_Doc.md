@@ -63,13 +63,11 @@ TODO: 后续需要为其开发创作工具, User Journeys待补充
 - AI生成(语音)
 
 ### P2 (Nice to have)
-
-
-### P3 (Explicitly out of scope)
-
 - 社交功能
 - 公开评论
 - 推荐算法
+
+### P3 (Explicitly out of scope)
 - 移动端 App (仅提供 Web/PWA)
 
 ---
