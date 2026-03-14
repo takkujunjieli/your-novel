@@ -1,6 +1,6 @@
 ---
 agent: planner
-model: gemini-2.0-flash
+model: claude-code-cli
 skills: [read_file, list_dir]
 optional: false
 ---

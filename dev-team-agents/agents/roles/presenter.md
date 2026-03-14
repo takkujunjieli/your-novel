@@ -1,6 +1,6 @@
 ---
 agent: presenter
-model: gemini-2.0-flash
+model: claude-code-cli
 skills: [read_file]
 optional: false
 ---
