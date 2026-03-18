@@ -19,9 +19,9 @@ Optional folder: `context` or `memory`. If provided, the agent will be instructe
 3. Run the single agent:
 ```bash
 if [ -z "$folder" ]; then
-    cd /Users/takku/Documents/your-novel/dev-team-agents && source venv/bin/activate && python run_agent.py "<role>" "<task>"
+    cd /Users/takku/Documents/ML-EKS-copy/dev-team-agents && source venv/bin/activate && python run_agent.py "<role>" "<task>"
 else
-    cd /Users/takku/Documents/your-novel/dev-team-agents && source venv/bin/activate && python run_agent.py "<role>" "<folder>" "<task>"
+    cd /Users/takku/Documents/ML-EKS-copy/dev-team-agents && source venv/bin/activate && python run_agent.py "<role>" "<folder>" "<task>"
 fi
 ```
 

@@ -15,7 +15,7 @@ Triggered when user types `/dev-team "task description"` in the chat.
 
 3. Run the dev team workflow:
 ```
-cd /Users/takku/Documents/your-novel/dev-team-agents && source venv/bin/activate && python main.py "<task>"
+cd /Users/takku/Documents/ML-EKS-copy/dev-team-agents && source venv/bin/activate && python main.py "<task>"
 ```
 
 4. Read the output file to get the structured result:

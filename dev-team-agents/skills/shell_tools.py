@@ -5,7 +5,7 @@ import os
 
 
 CLAUDE_CLI = os.getenv("CLAUDE_CLI_PATH", "/Users/takku/.local/bin/claude")
-PROJECT_ROOT = os.getenv("PROJECT_ROOT", "/Users/takku/Documents/your-novel")
+PROJECT_ROOT = os.getenv("PROJECT_ROOT", "/Users/takku/Documents/ML-EKS-copy")
 
 
 @tool
@@ -37,7 +37,7 @@ def run_claude_code(prompt: str, cwd: str = PROJECT_ROOT) -> str:
     """
     try:
         result = subprocess.run(
-            [CLAUDE_CLI, "--print", prompt],
+            [CLAUDE_CLI, "--print", "--dangerously-skip-permissions", prompt],
             cwd=cwd,
             capture_output=True,
             text=True,
