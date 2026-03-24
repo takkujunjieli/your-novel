@@ -36,7 +36,32 @@ class Chapter(ChapterBase, table=True):
     # Relationship back to Content
     novel: Content = Relationship(back_populates="chapters")
 
-# Public schemas for API responses
+# --- GenerationJob ---
+
+class GenerationJobBase(SQLModel):
+    status: str = Field(default="pending")  # pending, generating, completed, failed
+    model_name: Optional[str] = None
+    model_version: Optional[str] = None
+    error_message: Optional[str] = None
+
+class GenerationJob(GenerationJobBase, table=True):
+    __tablename__ = "generation_jobs"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="users.id")
+    content_id: Optional[uuid.UUID] = Field(default=None, foreign_key="contents.id")
+    chapter_id: Optional[uuid.UUID] = Field(default=None, foreign_key="chapters.id")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    completed_at: Optional[datetime] = None
+
+class GenerationJobPublic(GenerationJobBase):
+    id: uuid.UUID
+    content_id: Optional[uuid.UUID]
+    chapter_id: Optional[uuid.UUID]
+    created_at: datetime
+    completed_at: Optional[datetime]
+
+# --- Public schemas for API responses ---
+
 class ContentPublic(ContentBase):
     id: uuid.UUID
     created_at: datetime

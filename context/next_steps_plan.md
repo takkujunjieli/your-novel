@@ -12,7 +12,7 @@
 | Architecture docs | Done (system, AI, prompts, ADRs, PRD, safety) |
 | Data models | Done (User, Content, Chapter in SQLModel) |
 | Backend API | Partial — read endpoints only (health, age-verify, content CRUD) |
-| AI Generation | Not started |
+| AI Generation | Steps 1-7 done (service, API, SSE). Step 8 tests pending. |
 | Safety filtering | Not started |
 | Frontend | Not started |
 | Tests | Not started |

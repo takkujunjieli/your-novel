@@ -470,6 +470,19 @@ Steps 1-2 are foundations. Steps 3-4 can be developed together. Steps 6-7 depend
 
 ---
 
+## Implementation Status
+
+| Step | Description | Status | Date |
+|------|-------------|--------|------|
+| 1 | Config & Dependencies | Done | 2026-03-18 |
+| 2 | GenerationJob Model | Done | 2026-03-18 |
+| 3 | Prompt Assembly Service | Done | 2026-03-18 |
+| 4 | Generation Service (Core) | Done | 2026-03-18 |
+| 5 | Generation Orchestrator | Done | 2026-03-18 |
+| 6 | Generation API Endpoints | Done | 2026-03-18 |
+| 7 | SSE Streaming Endpoint | Done | 2026-03-18 |
+| 8 | Unit Tests | Not started | — |
+
 ## Immediate Next Action
 
-> **engineer**: Implement Steps 1-2 (config + GenerationJob model). Then implement Steps 3-5 (prompt assembly + generation service + orchestrator). Then implement Steps 6-7 (API endpoints + SSE). This can be done as one task or split into two.
+> **tester**: Implement Step 8 — unit tests for prompts, generation service, and API endpoints. See Step 8 section above for detailed test plan.
